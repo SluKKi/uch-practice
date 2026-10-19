@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  USER
+  ADMIN
+}
+
+enum PaymentMethod {
+  IN_PERSON
+  SBP
+}
+
+enum RequestStatus {
+  NEW
+  SCHEDULED
+  COMPLETED
+}
+
+model User {
+  id        String    @id @default(uuid())
+  login     String    @unique
+  password  String
+  fullName  String
+  phone     String
+  email     String
+  role      Role      @default(USER)
+  requests  Request[]
+  createdAt DateTime  @default(now())
+}
+
+model Request {
+  id            String        @id @default(uuid())
+  userId        String
+  roomName      String
+  startDate     DateTime
+  paymentMethod PaymentMethod
+  status        RequestStatus @default(NEW)
+  review        String?
+  createdAt     DateTime      @default(now())
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
